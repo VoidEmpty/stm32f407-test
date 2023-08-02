@@ -1,0 +1,26 @@
+[package]
+authors = ["EmptyVoid <VoidEmpty@users.noreply.github.com>"]
+edition = "2018"
+readme = "README.md"
+name = "embedded"
+version = "0.1.0"
+
+[dependencies]
+cortex-m = "0.7.7"
+cortex-m-rt = "0.6.15"
+panic-halt = "0.2.0"
+stm32f407g-disc = "0.4.1"
+
+# this lets you use `cargo fix`!
+[[bin]]
+name = "embedded"
+test = false
+bench = false
+
+[profile.release]
+codegen-units = 1 # better optimizations
+debug = true # symbols are nice and they don't increase the size on Flash
+lto = true # better optimizations
+
+[build]
+target = "thumbv7em-none-eabihf"
