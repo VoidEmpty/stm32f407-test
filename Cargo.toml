@@ -18,9 +18,6 @@ test = false
 bench = false
 
 [profile.release]
+lto = true        # better optimizations
 codegen-units = 1 # better optimizations
-debug = true # symbols are nice and they don't increase the size on Flash
-lto = true # better optimizations
-
-[build]
-target = "thumbv7em-none-eabihf"
+debug = true      # symbols are nice and they don't increase the size on Flash
