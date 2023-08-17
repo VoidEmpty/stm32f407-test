@@ -2,16 +2,17 @@
     "version": "0.2.0",
     "configurations": [
         {
-            // "preLaunchTask": "${defaultBuildTask}",
             "type": "probe-rs-debug",
             "request": "launch",
             "name": "Debug",
             "chip": "STM32F407VGTx", //!MODIFY
             "coreConfigs": [
                 {
-                    "programBinary": "${workspaceFolder}\\target\\thumbv7em-none-eabihf\\debug\\embedded"
+                    "coreIndex": 0,
+                    "rttEnabled": true,
+                    "programBinary": "${workspaceFolder}\\target\\thumbv7em-none-eabihf\\debug\\embedded",
                 }
-            ]
+            ],
         }
     ]
 }

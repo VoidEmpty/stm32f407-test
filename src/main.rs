@@ -2,8 +2,12 @@
 #![no_main]
 #![no_std]
 
+// RTT and defmt logger setup
+use defmt_rtt as _;
+// Setup panic behaviour
 use panic_halt as _;
 
+// Use crate for stm32f407 discovery board
 use stm32f407g_disc as board;
 
 use crate::board::{
@@ -14,11 +18,14 @@ use crate::board::{
 
 use cortex_m::peripheral::Peripherals;
 
-use cortex_m_rt::entry;
-
 #[entry]
 fn main() -> ! {
     if let (Some(p), Some(cp)) = (stm32::Peripherals::take(), Peripherals::take()) {
+        // !! RTT + defmt logger check
+        defmt::debug!("Hello World");
+
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // ! Blinking example
         let gpiod = p.GPIOD.split();
 
         // Initialize on-board LEDs

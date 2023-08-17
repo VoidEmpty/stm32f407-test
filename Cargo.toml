@@ -6,9 +6,15 @@ name = "embedded"
 version = "0.1.0"
 
 [dependencies]
-cortex-m = "0.7.7"
+# cortex-m crates
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = "0.6.15"
+# crates for advanced defmt logging
+defmt = "0.3.5"
+defmt-rtt = "0.4.0"
+# panic handler to print backtrace via defmt
 panic-halt = "0.2.0"
+# stm32f407 discovery board crate
 stm32f407g-disc = "0.4.1"
 
 # this lets you use `cargo fix`!
