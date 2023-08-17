@@ -7,6 +7,18 @@ use defmt_rtt as _;
 // Setup panic behaviour
 use panic_halt as _;
 
+// add rust collections with custom allocator
+extern crate alloc;
+use alloc::vec;
+use alloc::vec::Vec;
+
+use cortex_m_rt::entry;
+use embedded_alloc::Heap;
+
+// Setup heap allocator for rust collections
+#[global_allocator]
+static HEAP: Heap = Heap::empty();
+
 // Use crate for stm32f407 discovery board
 use stm32f407g_disc as board;
 
@@ -23,6 +35,32 @@ fn main() -> ! {
     if let (Some(p), Some(cp)) = (stm32::Peripherals::take(), Peripherals::take()) {
         // !! RTT + defmt logger check
         defmt::debug!("Hello World");
+
+        // ! Collections example
+        // Initialize the allocator
+        {
+            use core::mem::MaybeUninit;
+            // 192-Kbyte RAM available, check how much can be allocated for HEAP
+            const HEAP_SIZE: usize = 1024;
+            static mut HEAP_MEM: [MaybeUninit<u8>; HEAP_SIZE] = [MaybeUninit::uninit(); HEAP_SIZE];
+            unsafe { HEAP.init(HEAP_MEM.as_ptr() as usize, HEAP_SIZE) }
+        }
+
+        // Test vector
+        let c: u8 = 4;
+        let mut a = vec![1, 2, 3];
+        a.push(c);
+        let b: Vec<u8> = a.iter().map(|x| x + 1).collect();
+
+        assert_eq!(b, vec![2, 3, 4, 5]);
+
+        for &item in b.iter() {
+            defmt::debug!("{}", item);
+        }
+
+        let s: u8 = b.iter().sum();
+
+        defmt::info!("Sum of vector: {}", s);
 
         // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
         // ! Blinking example
