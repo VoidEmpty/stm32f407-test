@@ -4,15 +4,22 @@
 
 // RTT and defmt logger setup
 use defmt_rtt as _;
+
 // Setup panic behaviour
 use panic_probe as _;
+
+// same panicking *behavior* as `panic-probe` but doesn't print a panic message
+// this prevents the panic message being printed *twice* when `defmt::panic` is invoked
+#[defmt::panic_handler]
+fn panic() -> ! {
+    cortex_m::asm::udf()
+}
 
 // add rust collections with custom allocator
 extern crate alloc;
 use alloc::vec;
 use alloc::vec::Vec;
 
-use cortex_m_rt::entry;
 use embedded_alloc::Heap;
 
 // Setup heap allocator for rust collections
@@ -29,6 +36,8 @@ use crate::board::{
 };
 
 use cortex_m::peripheral::Peripherals;
+
+use cortex_m_rt::entry;
 
 #[entry]
 fn main() -> ! {
@@ -49,7 +58,13 @@ fn main() -> ! {
         // Test vector
         let c: u8 = 4;
         let mut a = vec![1, 2, 3];
+
         a.push(c);
+
+        for &item in a.iter() {
+            defmt::debug!("{}", item);
+        }
+
         let b: Vec<u8> = a.iter().map(|x| x + 1).collect();
 
         assert_eq!(b, vec![2, 3, 4, 5]);
@@ -112,11 +127,4 @@ fn main() -> ! {
     loop {
         continue;
     }
-}
-
-// same panicking *behavior* as `panic-probe` but doesn't print a panic message
-// this prevents the panic message being printed *twice* when `defmt::panic` is invoked
-#[defmt::panic_handler]
-fn panic() -> ! {
-    cortex_m::asm::udf()
 }
