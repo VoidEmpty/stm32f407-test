@@ -5,7 +5,7 @@
 // RTT and defmt logger setup
 use defmt_rtt as _;
 // Setup panic behaviour
-use panic_halt as _;
+use panic_probe as _;
 
 // add rust collections with custom allocator
 extern crate alloc;
@@ -112,4 +112,11 @@ fn main() -> ! {
     loop {
         continue;
     }
+}
+
+// same panicking *behavior* as `panic-probe` but doesn't print a panic message
+// this prevents the panic message being printed *twice* when `defmt::panic` is invoked
+#[defmt::panic_handler]
+fn panic() -> ! {
+    cortex_m::asm::udf()
 }

@@ -15,7 +15,7 @@ defmt-rtt = "0.4.0"
 # custom heap allocator for rust collections
 embedded-alloc = "0.5.0"
 # panic handler to print backtrace via defmt
-panic-halt = "0.2.0"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
 # stm32f407 discovery board crate
 stm32f407g-disc = "0.4.1"
 
