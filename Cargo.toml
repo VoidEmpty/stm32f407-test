@@ -25,7 +25,16 @@ name = "embedded"
 test = false
 bench = false
 
+[profile.dev]
+lto = true             # better LLVM’s link time optimizations
+codegen-units = 1      # compilation time optimizations
+debug = true           # symbols are nice and they don't increase the size on Flash
+opt-level = "s"        # smaller binary size
+overflow-checks = true # integer overflow checks
+
 [profile.release]
-lto = true        # better optimizations
-codegen-units = 1 # better optimizations
-debug = true      # symbols are nice and they don't increase the size on Flash
+lto = true              # better LLVM’s link time optimizations
+codegen-units = 1       # compilation time optimizations
+debug = false           # disable debug info
+opt-level = "s"         # smaller binary size
+overflow-checks = false # integer overflow checks

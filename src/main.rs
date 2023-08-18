@@ -30,13 +30,15 @@ static HEAP: Heap = Heap::empty();
 use stm32f4xx_hal as hal;
 
 use crate::hal::{pac, prelude::*};
-use cortex_m::peripheral::Peripherals;
 
 use cortex_m_rt::entry;
 
 #[entry]
 fn main() -> ! {
-    if let (Some(p), Some(cp)) = (pac::Peripherals::take(), Peripherals::take()) {
+    if let (Some(p), Some(cp)) = (
+        pac::Peripherals::take(),
+        cortex_m::peripheral::Peripherals::take(),
+    ) {
         // !! RTT + defmt logger check
         defmt::debug!("Hello World");
 
