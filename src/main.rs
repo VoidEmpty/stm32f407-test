@@ -26,22 +26,17 @@ use embedded_alloc::Heap;
 #[global_allocator]
 static HEAP: Heap = Heap::empty();
 
-// Use crate for stm32f407 discovery board
-use stm32f407g_disc as board;
+// Use HAL crate for stm32f407
+use stm32f4xx_hal as hal;
 
-use crate::board::{
-    hal::stm32,
-    hal::{delay::Delay, prelude::*},
-    led::{LedColor, Leds},
-};
-
+use crate::hal::{pac, prelude::*};
 use cortex_m::peripheral::Peripherals;
 
 use cortex_m_rt::entry;
 
 #[entry]
 fn main() -> ! {
-    if let (Some(p), Some(cp)) = (stm32::Peripherals::take(), Peripherals::take()) {
+    if let (Some(p), Some(cp)) = (pac::Peripherals::take(), Peripherals::take()) {
         // !! RTT + defmt logger check
         defmt::debug!("Hello World");
 
@@ -81,27 +76,30 @@ fn main() -> ! {
         // ! Blinking example
         let gpiod = p.GPIOD.split();
 
-        // Initialize on-board LEDs
-        let mut leds = Leds::new(gpiod);
+        // Initialize on-board LEDs pd12-15
+        let mut orange_led = gpiod.pd12.into_push_pull_output();
+        let mut red_led = gpiod.pd13.into_push_pull_output();
+        let mut blue_led = gpiod.pd14.into_push_pull_output();
+        let mut green_led = gpiod.pd15.into_push_pull_output();
 
         // Constrain clock registers
         let rcc = p.RCC.constrain();
 
         // Configure clock to 168 MHz (i.e. the maximum) and freeze it
-        let clocks = rcc.cfgr.sysclk(168.mhz()).freeze();
+        let clocks = rcc.cfgr.sysclk(168.MHz()).freeze();
 
         // Get delay provider
-        let mut delay = Delay::new(cp.SYST, clocks);
+        let mut delay = cp.SYST.delay(&clocks);
 
         loop {
             // Turn LEDs on one after the other with 500ms delay between them
-            leds[LedColor::Orange].on();
+            orange_led.set_low();
             delay.delay_ms(500_u16);
-            leds[LedColor::Red].on();
+            red_led.set_low();
             delay.delay_ms(500_u16);
-            leds[LedColor::Blue].on();
+            blue_led.set_low();
             delay.delay_ms(500_u16);
-            leds[LedColor::Green].on();
+            green_led.set_low();
             delay.delay_ms(500_u16);
 
             // Delay twice for half a second due to limited timer resolution
@@ -109,13 +107,13 @@ fn main() -> ! {
             delay.delay_ms(500_u16);
 
             // Turn LEDs off one after the other with 500ms delay between them
-            leds[LedColor::Orange].off();
+            orange_led.set_high();
             delay.delay_ms(500_u16);
-            leds[LedColor::Red].off();
+            red_led.set_high();
             delay.delay_ms(500_u16);
-            leds[LedColor::Blue].off();
+            blue_led.set_high();
             delay.delay_ms(500_u16);
-            leds[LedColor::Green].off();
+            green_led.set_high();
             delay.delay_ms(500_u16);
 
             // Delay twice for half a second due to limited timer resolution
